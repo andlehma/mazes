@@ -69,7 +69,7 @@ function getNeighbors(mat, y, x){
 		if (!mat[y-1][x].visited) neighbors.push(mat[y-1][x]);
 	}
 	// right
-	if (mat[x+1]){
+	if (mat[y][x+1]){
 		if (!mat[y][x+1].visited) neighbors.push(mat[y][x+1]);
 	}
 	// down
@@ -77,7 +77,7 @@ function getNeighbors(mat, y, x){
 		if (!mat[y+1][x].visited) neighbors.push(mat[y+1][x]);
 	}
 	// left
-	if (mat[x-1]){
+	if (mat[y][x-1]){
 		if (!mat[y][x-1].visited) neighbors.push(mat[y][x-1]);
 	}
 	return neighbors;
