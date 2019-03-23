@@ -20,10 +20,10 @@ function node(y, x){
 		let absY = this.y * cellH;
 		if (this.current){
 			ctx.fillStyle = "#ADD8E6"
-			ctx.fillRect(absX, absY, cellH, cellW);
+			ctx.fillRect(absX, absY, cellW, cellH);
 		} else if (this.closed()){
 			ctx.fillStyle = "black";
-			ctx.fillRect(absX, absY, cellH, cellW);
+			ctx.fillRect(absX, absY, cellW, cellH);
 		} else {
 			ctx.lineWidth = 1;
 			ctx.strokeStyle = "black";
@@ -85,6 +85,11 @@ function getNeighbors(mat, y, x){
 
 let mazeMat = [];
 function init(){
+	mazeW = parseInt(document.getElementById("maze-width").value);
+	mazeH = parseInt(document.getElementById("maze-height").value);
+	frameLength = parseFloat(-document.getElementById("speed").value) + 900;
+	cellW = cellH = canvas.width/mazeW;
+	canvas.height = cellW * mazeH;
 	mazeMat = [];
 	for (let i = 0; i < mazeH; i++){
 		let row = [];
@@ -133,6 +138,7 @@ function generate(mat){
 	curr.visited = true;
 	let queue = [];
 	function Iterate(){
+		curr.current = false;
 		if (!allVisited(mat)){
 			neighbors = getNeighbors(mat, curr.y, curr.x);
 			if (neighbors.length > 0){
@@ -147,7 +153,6 @@ function generate(mat){
 			}
 			curr.current = true;
 			drawAll();
-			curr.current = false;
 			setTimeout(()=>{Iterate()}, frameLength);
 		} else {
 			// open top left and bottom right
