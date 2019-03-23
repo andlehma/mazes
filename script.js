@@ -6,20 +6,28 @@ canvas.width = 500;
 canvas.height = 500;
 let mazeW = mazeH = 10;
 let cellW = cellH = canvas.width/mazeW;
+let frameLength = 50;
 
 function node(y, x){
 	this.y = y;
 	this.x = x;
 	this.visited = false;
+	this.current = false;
 	this.walls = [1, 1, 1, 1]; // top right bottom left
+	this.closed = function(){
+		return this.walls[0] && this.walls[1] && this.walls[2] && this.walls[3];
+	}
 	this.draw = function(){
 		let absX = this.x * cellW;
 		let absY = this.y * cellH;
-		if (this.walls == [1, 1, 1, 1]){
+		if (this.current){
+			ctx.fillStyle = "#ADD8E6"
+			ctx.fillRect(absX, absY, cellH, cellW);
+		} else if (this.closed()){
 			ctx.fillStyle = "black";
 			ctx.fillRect(absX, absY, cellH, cellW);
 		} else {
-			ctx.lineWidth = 4;
+			ctx.lineWidth = 1;
 			ctx.strokeStyle = "black";
 			ctx.beginPath();
 			// up
@@ -45,6 +53,15 @@ function node(y, x){
 			ctx.stroke();
 		}
 	}
+}
+
+function drawAll(){
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	mazeMat.forEach(row => {
+		row.forEach(node => {
+			node.draw();
+		});
+	});
 }
 
 function getNeighbors(mat, y, x){
@@ -113,34 +130,36 @@ function generate(mat){
 	let curr = mat[0][0];
 	curr.visited = true;
 	let queue = [];
-	while (!allVisited(mat)){
-		neighbors = getNeighbors(mat, curr.y, curr.x);
-		if (neighbors.length > 0){
-			next = neighbors[randomInt(0, neighbors.length - 1)];
-			queue.push(curr);
-			curr.walls[getDir(curr, next)] = 0;
-			next.walls[getDir(next, curr)] = 0;
-			next.visited = true;
-			curr = next;
-		} else if (queue.length > 0){
-			curr = queue.pop();
+	function Iterate(){
+		if (!allVisited(mat)){
+			neighbors = getNeighbors(mat, curr.y, curr.x);
+			if (neighbors.length > 0){
+				next = neighbors[randomInt(0, neighbors.length - 1)];
+				queue.push(curr);
+				curr.walls[getDir(curr, next)] = 0;
+				next.walls[getDir(next, curr)] = 0;
+				next.visited = true;
+				curr = next;
+			} else if (queue.length > 0){
+				curr = queue.pop();
+			}
+			curr.current = true;
+			drawAll();
+			curr.current = false;
+			setTimeout(()=>{Iterate()}, frameLength);
+		} else {
+			// clear the blue square
+			curr.current = false;
+			drawAll();
 		}
 	}
+	Iterate();
+	// open top left and bottom right
+	mat[0][0].walls[3] = 0;
+	mat[mat.length - 1][mat[mat.length - 1].length - 1].walls[1] = 0;
 }
 
-generate(mazeMat);
-
-function animate() {
-	requestAnimationFrame(animate);
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "black";
-
-	mazeMat.forEach(row => {
-		row.forEach(node => {
-			node.draw();
-		});
-	});
-};
+//generate(mazeMat);
 
 function randomInt(min,max){
 	return Math.floor(Math.random()*(max-min+1)+min);
@@ -149,5 +168,3 @@ function randomInt(min,max){
 function randomFloat(min,max){
 	return Math.random()*(max-min+1)+min;
 }
-
-animate();
