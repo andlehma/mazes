@@ -1,7 +1,5 @@
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
-let iW = window.innerWidth;
-let iH = window.innerHeight;
 canvas.width = 500;
 canvas.height = 500;
 let mazeW = mazeH = 10;
@@ -85,14 +83,18 @@ function getNeighbors(mat, y, x){
 	return neighbors;
 }
 
-mazeMat = [];
-for (let i = 0; i < mazeH; i++){
-	let row = [];
-	for (let j = 0; j < mazeW; j++){
-		row.push(new node(i, j));
+let mazeMat = [];
+function init(){
+	mazeMat = [];
+	for (let i = 0; i < mazeH; i++){
+		let row = [];
+		for (let j = 0; j < mazeW; j++){
+			row.push(new node(i, j));
+		}
+		mazeMat.push(row);
 	}
-	mazeMat.push(row);
 }
+
 
 function allVisited(mat){
 	let av = true;
@@ -159,12 +161,13 @@ function generate(mat){
 	mat[mat.length - 1][mat[mat.length - 1].length - 1].walls[1] = 0;
 }
 
-//generate(mazeMat);
+function run(){
+	init();
+	generate(mazeMat);
+}
+
+run();
 
 function randomInt(min,max){
 	return Math.floor(Math.random()*(max-min+1)+min);
-}
-
-function randomFloat(min,max){
-	return Math.random()*(max-min+1)+min;
 }
