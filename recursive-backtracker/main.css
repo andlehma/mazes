@@ -1,4 +1,15 @@
+body {
+  font-family: sans-serif;
+}
+
 #container{
   width: 500px;
   margin: 20px auto;
+}
+
+#back {
+  position: fixed;
+  bottom: 5px;
+  left: 5px;
+  text-decoration: none;
 }
