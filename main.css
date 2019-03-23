@@ -1,0 +1,34 @@
+*, *:before, *:after{
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0px;
+    font-family: sans-serif;
+}
+
+h1 {
+    font-family: sans-serif;
+    text-align: center;
+}
+
+ul {
+    list-style:none;
+    text-align:center;
+    padding: 0;
+}
+
+#container {
+    width: 520px;
+    margin: auto;
+    display: block;
+}
+
+#top, #bottom{
+    background-color: #DEDEDE;
+    padding: 10px;
+}
+
+#top a{
+    font-size: 18px;
+}
