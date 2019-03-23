@@ -150,15 +150,15 @@ function generate(mat){
 			curr.current = false;
 			setTimeout(()=>{Iterate()}, frameLength);
 		} else {
+			// open top left and bottom right
+			mat[0][0].walls[3] = 0;
+			mat[mat.length - 1][mat[mat.length - 1].length - 1].walls[1] = 0;
 			// clear the blue square
 			curr.current = false;
 			drawAll();
 		}
 	}
 	Iterate();
-	// open top left and bottom right
-	mat[0][0].walls[3] = 0;
-	mat[mat.length - 1][mat[mat.length - 1].length - 1].walls[1] = 0;
 }
 
 function run(){
