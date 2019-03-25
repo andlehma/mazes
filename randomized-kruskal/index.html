@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>mazes</title>
+  <link rel="stylesheet" href="main.css" type="text/css">
+</head>
+<body>
+  <div id="container">
+    <canvas></canvas>
+    <label for="maze-width">Width</label>
+    <input type="text" name="maze-width" id="maze-width" value="10" size="4"></input>
+    <br>
+    <label for="maze-height">Height</label>
+    <input type="text" name="maze-height" id="maze-height" value="10" size="4"></input>
+    <br>
+    <label for="speed">Speed</label>
+    <input type="range" min="400" max="1000" value="800" name="speed" id="speed"></input>
+    <br>
+    <button onclick="run()">Run</button>
+    <a href=".." id="back">Home</a>
+  </div>
+  <script type="text/javascript" src="script.js"></script>
+</body>
+</html>
