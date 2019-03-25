@@ -1,3 +1,9 @@
+// randomized version of kruskal's minimum spanning tree algorithm
+// creates a list of walls and a list containing a disjoint set for
+// each cell. for each wall in some random order, if the cells belong
+// to separate disjoint sets, remove the wall and join the sets
+// containing each cell.
+
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 500;
@@ -9,7 +15,6 @@ let frameLength = 50;
 function node(y, x){
 	this.y = y;
 	this.x = x;
-	this.visited = false;
 	this.current = false;
 	this.walls = [1, 1, 1, 1]; // top right bottom left
 	this.closed = function(){
@@ -53,34 +58,13 @@ function node(y, x){
 	}
 }
 
-function drawAll(){
+function drawAll(mat){
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	mazeMat.forEach(row => {
+	mat.forEach(row => {
 		row.forEach(node => {
 			node.draw();
 		});
 	});
-}
-
-function getNeighbors(mat, y, x){
-	let neighbors = [];
-	// up
-	if (mat[y-1]){
-		if (!mat[y-1][x].visited) neighbors.push(mat[y-1][x]);
-	}
-	// right
-	if (mat[y][x+1]){
-		if (!mat[y][x+1].visited) neighbors.push(mat[y][x+1]);
-	}
-	// down
-	if (mat[y+1]){
-		if (!mat[y+1][x].visited) neighbors.push(mat[y+1][x]);
-	}
-	// left
-	if (mat[y][x-1]){
-		if (!mat[y][x-1].visited) neighbors.push(mat[y][x-1]);
-	}
-	return neighbors;
 }
 
 let mazeMat = [];
@@ -100,62 +84,55 @@ function init(){
 	}
 }
 
-
-function allVisited(mat){
-	let av = true;
-	mat.forEach(row => {
-		row.forEach(node =>{
-			if (!node.visited){
-				av = false;
-			}
-		});
-	});
-	return av;
-}
-
 function getDir(n1, n2){
 	// up
-	if (n2.y - n1.y == -1){
+	if (n2.y - n1.y === -1){
 		return 0;
 	}
 	// right
-	if (n2.x - n1.x == 1){
+	if (n2.x - n1.x === 1){
 		return 1;
 	}
 	// down
-	if (n2.y - n1.y == 1){
+	if (n2.y - n1.y === 1){
 		return 2;
 	}
 	// left
-	if (n2.x - n1.x == -1){
+	if (n2.x - n1.x === -1){
 		return 3;
 	}
-	return Error("Error: nodes are not neighbors");
+	return Error("nodes are not neighbors");
 }
 
-function accessMat(mat, i){
-	return mat[parseInt(i / mat[0].length)][parseInt((i % mat[0].length))]
-}
+function disjointSet(value){
+	this.value = value;
+	this.parent = this;
+	this.rank = 0;
 
-function disjointFind(sets, x){
-	let index;
-	sets.forEach(set => {
-		if (set.includes(x)){
-			index = sets.indexOf(set);
+	this.find = function(){
+		let parent = this.parent;
+		if (parent !== this){
+			this.parent = parent.find();
 		}
-	});
-	return index;
-}
+		return this.parent;
+	}
 
-function union(sets, x, y){
-	let x_index = disjointFind(sets, x);
-	let x_set = sets[x_index];
-	let y_index = disjointFind(sets, y);
-	let y_set = sets[y_index];
-	let new_set = x_set.concat(y_set);
-	y_index = disjointFind(sets, y);
-	sets.splice(y_index, 1);
-	sets.push(new_set);
+	this.union = function(s){
+		let thisParent = this.find();
+		let sParent = s.find();
+
+		if (thisParent === sParent){
+			return;
+		}
+		if (thisParent.rank < sParent.rank){
+			thisParent.parent = sParent;
+		} else if (thisParent.rank > sParent.rank){
+			sParent.parent = thisParent;
+		} else {
+			sParent.parent = thisParent;
+			thisParent.rank += 1;
+		}
+	}
 }
 
 function generate(mat){
@@ -167,50 +144,68 @@ function generate(mat){
 	let sets = [];
 	mat.forEach(row => {
 		row.forEach(node => {
-			sets.push([node]);
+			sets.push(new disjointSet(node));
 		});
 	});
 	for (let i = 0; i < n_walls; i++){
 		walls.push(i);
 	}
 	shuffle(walls);
-	walls.forEach(wall => {
-		let row = parseInt(wall/walls_per_row);
-		let col;
-		if (row == height - 1){
-			col = parseInt(wall % walls_per_row);
-		} else {
-			col = parseInt(wall % walls_per_row / 2);
-		}
-		let node = mat[row][col];
-		let next;
-		if (row == height - 1){
-			next = mat[row][col + 1];
-		} else {
-			if (row % 2 == 0){
-				if (wall % 2 == 1){
-					next = mat[row][col + 1];
-				} else {
-					next = mat[row + 1][col];
-				}
+	function Iterate(){
+		if (walls.length > 0){
+			let wall = walls.pop();
+			let row = parseInt(wall/walls_per_row);
+			let col;
+			if (row === height - 1){
+				col = parseInt(wall % walls_per_row);
 			} else {
-				if (wall % 2 == 1){
-					next = mat[row + 1][col];
+				col = parseInt(wall % walls_per_row / 2);
+			}
+			let currVal = mat[row][col];
+			let currSet = sets.find((element) => {return element.value === currVal})
+			currVal.current = true;
+			let nextVal;
+			if (row === height - 1){
+				nextVal = mat[row][col + 1];
+			} else {
+				// for even rows, even numbers are bottom walls
+				// and odd numbers are side (right) walls
+				if (row % 2 === 0){
+					if (wall % 2 === 1){
+						nextVal = mat[row][col + 1];
+					} else {
+						nextVal = mat[row + 1][col];
+					}
 				} else {
-					next = mat[row][col + 1];
+				// for odd rows, odd numbers are bottom walls
+				// and even numbers are side (right) walls
+					if (wall % 2 === 1){
+						nextVal = mat[row + 1][col];
+					} else {
+						nextVal = mat[row][col + 1];
+					}
 				}
 			}
+			let nextSet = sets.find((element) => {return element.value === nextVal});
+			nextVal.current = true;
+			if (currSet.find() != nextSet.find()){
+				currVal.walls[getDir(currVal, nextVal)] = 0;
+				nextVal.walls[getDir(nextVal, currVal)] = 0;
+				currSet.union(nextSet);
+			}
+			drawAll(mazeMat);
+			currVal.current = false;
+			nextVal.current = false;
+			setTimeout(()=>{Iterate()}, frameLength);
+		} else {
+			// open top left and bottom right
+			mat[0][0].walls[3] = 0;
+			mat[mat.length - 1][mat[mat.length - 1].length - 1].walls[1] = 0;
+			// clear the blue square
+			drawAll(mazeMat);
 		}
-		if (disjointFind(sets, node) != disjointFind(sets, next)){
-			console.log(wall);
-			console.log(node);
-			console.log(next);
-			node.walls[getDir(node, next)] = 0;
-			next.walls[getDir(next, node)] = 0;
-			union(sets, node, next);
-		}
-	});
-	drawAll();
+	}
+	Iterate();
 }
 
 function run(){
@@ -231,7 +226,5 @@ function shuffle(arr){
 	}
 }
 
-let myarr = [0, 1, 2, 3, 4, 5, 6];
-
 init();
-drawAll();
+drawAll(mazeMat);
