@@ -1,3 +1,9 @@
+// randomized version of a depth-first search algorithm
+// starting from one cell of the grid, randomly move
+// in any valid direction until a cell is found with no
+// valid neighbors. backtrack until an unvisited valid
+// cell is available, repeat until every cell is visited
+
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 500;
@@ -99,7 +105,6 @@ function init(){
 		mazeMat.push(row);
 	}
 }
-
 
 function allVisited(mat){
 	let av = true;
