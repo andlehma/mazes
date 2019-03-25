@@ -59,7 +59,7 @@ function node(y, x){
 	}
 }
 
-function drawAll(){
+function drawAll(mat){
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	mazeMat.forEach(row => {
 		row.forEach(node => {
@@ -120,19 +120,19 @@ function allVisited(mat){
 
 function getDir(n1, n2){
 	// up
-	if (n2.y - n1.y == -1){
+	if (n2.y - n1.y === -1){
 		return 0;
 	}
 	// right
-	if (n2.x - n1.x == 1){
+	if (n2.x - n1.x === 1){
 		return 1;
 	}
 	// down
-	if (n2.y - n1.y == 1){
+	if (n2.y - n1.y === 1){
 		return 2;
 	}
 	// left
-	if (n2.x - n1.x == -1){
+	if (n2.x - n1.x === -1){
 		return 3;
 	}
 	return Error("Error: nodes are not neighbors");
@@ -157,7 +157,7 @@ function generate(mat){
 				curr = queue.pop();
 			}
 			curr.current = true;
-			drawAll();
+			drawAll(mazeMat);
 			setTimeout(()=>{Iterate()}, frameLength);
 		} else {
 			// open top left and bottom right
@@ -165,7 +165,7 @@ function generate(mat){
 			mat[mat.length - 1][mat[mat.length - 1].length - 1].walls[1] = 0;
 			// clear the blue square
 			curr.current = false;
-			drawAll();
+			drawAll(mazeMat);
 		}
 	}
 	Iterate();
@@ -181,4 +181,4 @@ function randomInt(min,max){
 }
 
 init();
-drawAll();
+drawAll(mazeMat);
